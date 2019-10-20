@@ -11,3 +11,11 @@ Apker - tool for people who loves to change firmware. Just flash module &amp; ge
 7. Flash **installer.zip**
 
 If you don't need apps anymore - flash **uninstaller.zip**
+
+# Credits
+
+[**Me**](https://github.com/AlexeyZavar)
+
+[**7-Zip**](https://www.7-zip.org/)
+
+[**aapt**](https://developer.android.com/studio/command-line/aapt2)
