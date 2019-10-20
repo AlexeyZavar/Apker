@@ -15,7 +15,6 @@ for /d %%B in (%work_dir%\*) do (
 
 rd /s /q %work_dir%\Installer\Installer > nul
 rd /s /q %work_dir%\Installer\InstallerSrc > nul
-del /s /f /q  %work_dir%\Installer\apks\MAGISK*.apk
 
 7z a -tzip -ssw -mx5 -r0 %work_dir%\installer.zip %work_dir%\Installer\*
 

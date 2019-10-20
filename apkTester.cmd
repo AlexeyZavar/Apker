@@ -11,8 +11,6 @@ for /d %%B in (%work_dir%\*) do (
 	)
 )
 
-
 rd /s /q %work_dir%\TESTER > nul
-
 
 pause

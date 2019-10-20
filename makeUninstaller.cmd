@@ -13,7 +13,7 @@ robocopy %work_dir%\UninstallerSrc %work_dir%\Uninstaller /s /e > nul
 for /d %%B in (%work_dir%\*) do (
 	for %%C in ("%%B\*.apk") do (
 		For /F "Delims=" %%I In ('getPackageName.cmd %%C') Do Set package=%%~I
-		echo Apk file: %%C [!package!] will be deleted after flashing module
+		echo !package! will be deleted after flashing module
 		echo pm uninstall !package! >> %work_dir%\Uninstaller\install.sh.2
 	)
 )
