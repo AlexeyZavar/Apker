@@ -2,15 +2,12 @@
 Apker - tool for people who loves to change firmware. Just flash module &amp; get all apps that you need!
 
 # Instructions
-1. Create subdirectory: ex. "*Utilities*"
+1. Create subdirectory in 'data': ex. "*Utilities*"
 2. Drop apk files in it
-3. Run **apkTester.cmd**
-4. If something wrong - delete or replace bad apk file
-5. Run **makeInstaller.cmd**
-6. Run **makeUninstaller.cmd**
-7. Flash **installer.zip**
+3. Run **Apker.exe** or 'dotnet Apker.dll'
+4. Just type 123 and wait :)
 
-If you don't need apps anymore - flash **uninstaller.zip**
+If you don't need apps anymore - flash **Uninstaller.zip**
 
 **IF SOMETHING WENT WRONG - DELETE ALL MODULES ('magisk --remove-modules')**
 # Credits
