@@ -12,6 +12,7 @@ Apker - tool for people who loves to change firmware. Just flash module &amp; ge
 
 If you don't need apps anymore - flash **uninstaller.zip**
 
+**IF SOMETHING WENT WRONG - DELETE ALL MODULES ('magisk --remove-modules')**
 # Credits
 
 [**Me**](https://github.com/AlexeyZavar)
