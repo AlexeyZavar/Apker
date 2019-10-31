@@ -32,27 +32,26 @@ print_modname() {
 
 on_install() {
   ui_print "- Extracting module files"
-  unzip -o "$ZIPFILE" 'system/*' -d $MODPATH >&2
+  unzip -o "$ZIPFILE" 'system/*' -d "$MODPATH" >&2
   unzip -o "$ZIPFILE" 'apks/*' -d /sdcard/ >&2
   unzip -o "$ZIPFILE" 'apks/*' -d /data/local/tmp/ >&2
   echo '============= started installing apk ============='
 apkDir="/data/local/tmp/apks/"
-cd $apkDir
+cd $apkDir || exit
 
 # These scripts by @johanlike (github)
 
 function readDir(){
 
-   cd $apkDir
+   cd $apkDir || exit
 
-   filelist=`ls $1`
+   filelist=$(ls "$1")
 
    for file in $filelist
 
    do
 
-
-       installApk $file
+       installApk "$file"
 
    done
 
@@ -68,13 +67,13 @@ function installApk(){
 
    then
 
-       echo "Installing "$file"..."
+       echo "- Installing ""$file""..."
        cp -r -f  /sdcard/apks/*.apk /data/local/tmp/
-       pm install $file
+       pm install "$file"
 
    else
 
-       echo "Error:"$file "is not an apk file."
+       echo "- Error: ""$file" "is not an apk file."
 
    fi
 
@@ -93,7 +92,7 @@ ui_print "- Now reboot"
 
 set_permissions() {
   # The following is the default rule, DO NOT remove
-  set_perm_recursive $MODPATH 0 0 0755 0644
+  set_perm_recursive "$MODPATH" 0 0 0755 0644
 
   # Here are some examples:
   # set_perm_recursive  $MODPATH/system/lib       0     0       0755      0644
