@@ -1,6 +1,8 @@
 # Apker
 Apker - tool for people who loves to change firmware. Just flash module &amp; get all apps that you need!
 
+Tested on Windows 10 x64 and Arch Linux. Mac OS supported but not tested
+
 # Instructions
 1. Create subdirectory in 'data': ex. "*Utilities*"
 2. Drop apk files in it
