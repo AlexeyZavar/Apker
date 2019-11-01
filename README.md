@@ -3,6 +3,7 @@ Apker - tool for people who loves to change firmware. Just flash module &amp; ge
 
 Tested on **Windows 10 x64** and **Arch Linux**. **Mac OS** supported but not tested
 
+***DotNet 3.0+ is required***
 # Instructions
 1. Create subdirectory in 'data': ex. "*Utilities*"
 2. Drop apk files in it
