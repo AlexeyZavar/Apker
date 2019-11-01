@@ -7,11 +7,12 @@ Tested on Windows 10 x64 and Arch Linux. Mac OS supported but not tested
 1. Create subdirectory in 'data': ex. "*Utilities*"
 2. Drop apk files in it
 3. Run **Apker.exe** or 'dotnet Apker.dll'
-4. Just type 123 and wait :)
+4. Chech apks (**1**)
+5. Make installer & uninstaller (**2,3**)
 
 If you don't need apps anymore - flash **Uninstaller.zip**
 
-**IF SOMETHING WENT WRONG - DELETE ALL MODULES ('magisk --remove-modules')**
+**IF SOMETHING WENT WRONG - DELETE ALL MAGISK MODULES ('magisk --remove-modules' via su terminal)**
 # Credits
 
 [**Me**](https://github.com/AlexeyZavar)
