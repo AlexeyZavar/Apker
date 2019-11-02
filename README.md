@@ -24,4 +24,6 @@ If you don't need apps anymore - flash **Uninstaller.zip**
 
 [**Me**](https://github.com/AlexeyZavar)
 
+[**SharpZipLib**](https://github.com/icsharpcode/SharpZipLib)
+
 [**aapt**](https://developer.android.com/studio/command-line/aapt2)
