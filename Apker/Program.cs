@@ -45,8 +45,6 @@ namespace Apker
 
       menu:
       while ( !_exit ) Menu();
-
-      Console.ReadLine();
     }
 
     private static void Menu()
@@ -81,6 +79,7 @@ namespace Apker
         default:
           return;
       }
+
       Utils.WaitForPress();
     }
 
