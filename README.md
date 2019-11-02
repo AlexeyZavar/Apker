@@ -13,6 +13,11 @@ Tested on **Windows 10 x64** and **Arch Linux**. **Mac OS** supported but not te
 
 If you don't need apps anymore - flash **Uninstaller.zip**
 
+# Command line arguments
+"check" - checks apk files
+"installer" - makes installer
+"uninstaller" - makes uninstaller
+
 **IF SOMETHING WENT WRONG - DELETE ALL MAGISK MODULES ('magisk --remove-modules' via su terminal)**
 # Credits
 
