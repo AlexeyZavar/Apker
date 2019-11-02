@@ -38,16 +38,15 @@ namespace Apker
     public static void Load(Type staticClass, string filename)
     {
       var fields = staticClass.GetProperties();
-      object[,] a;
       Stream f = File.Open( filename, FileMode.Open );
       var formatter = new BinaryFormatter();
-      a = formatter.Deserialize( f ) as object[,];
+      var a = formatter.Deserialize( f ) as object[,];
       f.Close();
-      if ( a.GetLength( 0 ) != fields.Length ) return;
+      if ( a != null && a.GetLength( 0 ) != fields.Length ) return;
       var i = 0;
       foreach ( var field in fields )
       {
-        if ( field.Name == a[i, 0] as string )
+        if ( field.Name == a?[i, 0] as string )
           if ( a[i, 1] != null )
             field.SetValue( null, a[i, 1] );
         i++;

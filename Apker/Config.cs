@@ -15,9 +15,9 @@ namespace Apker
   [Serializable]
   public class Config
   {
-    public static string LogPath { get; set; }
-    public static bool ColorMode { get; set; }
-    public static string WorkingDir { get; set; }
+    public static string LogPath { get; private set; }
+    public static bool ColorMode { get; private set; }
+    public static string WorkingDir { get; private set; }
 
     public static void LoadDefaults()
     {

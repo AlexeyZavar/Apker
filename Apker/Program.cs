@@ -15,15 +15,36 @@ using static Apker.Logger;
 
 namespace Apker
 {
-  internal class Program
+  internal static class Program
   {
-    private static readonly bool exit = false;
+    private static bool _exit;
 
     private static void Main(string[] args)
     {
       Loader.Load();
 
-      while ( !exit ) Menu();
+      if ( args.Length != 0 )
+      {
+        switch ( args[0] )
+        {
+          case "check":
+            NameAndIntegrityCheck();
+            break;
+          case "installer":
+            MakeInstaller();
+            break;
+          case "uninstaller":
+            MakeUninstaller();
+            break;
+          default:
+            goto menu;
+        }
+
+        Environment.Exit( 0 );
+      }
+
+      menu:
+      while ( !_exit ) Menu();
 
       Console.ReadLine();
     }
@@ -36,6 +57,7 @@ namespace Apker
       Log( "2. [c:0b]Make [c:0a]installer" );
       Log( "3. [c:0b]Make [c:0c]uninstaller" );
       Log( "4. [c:0e]Settings" );
+      Log( "e. [c:0c]Exit" );
       var choose = Utils.Chooser();
       Utils.ClearWorkspace();
       Console.Clear();
@@ -53,18 +75,22 @@ namespace Apker
         case '4':
           Config.Menu();
           break;
+        case 'e':
+          _exit = true;
+          break;
         default:
           return;
       }
+      Utils.WaitForPress();
     }
 
     private static void MakeUninstaller()
     {
-      var apks = Utils.FindFiles( "apk" );
+      var apkFiles = Utils.FindFiles( "apk" );
       var uninstallerDir = Config.WorkingDir + "Uninstaller";
-      Utils.CopyDirectory( Config.WorkingDir + "UninstallerSrc", uninstallerDir );
+      Utils.DuplicateDirectory( Config.WorkingDir + "UninstallerSrc", uninstallerDir );
       var source = File.ReadAllLines( uninstallerDir + "/install.sh" ).ToList();
-      foreach ( var apk in apks )
+      foreach ( var apk in apkFiles )
       {
         var name = Utils.GetPackageName( apk );
         Log( $"[c:0b]{name}[c:08] will be [c:0c]uninstalled" );
@@ -77,17 +103,16 @@ namespace Apker
       Log( "\n[c:0e]Creating archive, please wait..." );
       Utils.CreateZip( uninstallerDir, "Uninstaller.zip" );
       Log( "\n[c:0a]Done" );
-      Utils.WaitForPress();
     }
 
     private static void MakeInstaller()
     {
-      var apks = Utils.FindFiles( "apk" );
+      var apkFiles = Utils.FindFiles( "apk" );
       var installerDir = Config.WorkingDir + "Installer";
       if ( Directory.Exists( installerDir ) )
         Directory.Delete( installerDir, true );
-      Utils.CopyDirectory( Config.WorkingDir + "InstallerSrc", installerDir );
-      foreach ( var apk in apks )
+      Utils.DuplicateDirectory( Config.WorkingDir + "InstallerSrc", installerDir );
+      foreach ( var apk in apkFiles )
       {
         var name = Path.GetFileName( apk );
         Log( $"[c:03]Copying {name}..." );
@@ -97,18 +122,16 @@ namespace Apker
       Log( "\n[c:0e]Creating archive, please wait..." );
       Utils.CreateZip( installerDir, "Installer.zip" );
       Log( "\n[c:0a]Done" );
-      Utils.WaitForPress();
     }
 
     private static void NameAndIntegrityCheck()
     {
-      Console.Clear();
       Log( "[c:0e]Naming & integrity check started\n" );
-      var apks = Utils.FindFiles( "apk" );
+      var apkFiles = Utils.FindFiles( "apk" );
       var verificationError = false;
       var namingError = false;
       var namingErrorList = new List<string>();
-      foreach ( var apk in apks )
+      foreach ( var apk in apkFiles )
       {
         var apkName = Path.GetFileName( apk );
         var name = Utils.CheckName( apkName );
@@ -120,20 +143,18 @@ namespace Apker
         Log( $"[c:0b]{apkName}[c:08] - naming {nameResult}[c:08], integrity {verificationResult}" );
         if ( !verification )
           verificationError = true;
-        if ( !name )
-        {
-          namingError = true;
-          namingErrorList.Add( apk );
-        }
+        if ( name ) continue;
+        namingError = true;
+        namingErrorList.Add( apk );
       }
 
       if ( verificationError )
         Log(
-          "\n[c:06]Looks like you have corrupted apks\n**OR**\nIf you're using modified version of app - it cann't be installed without PM patch\n" );
+          "\n[c:06]Looks like you have corrupted apk files\n**OR**\nIf you're using modified version of app - it cannot be installed without PM patch\n" );
 
       if ( namingError )
       {
-        Log( "[c:06]Do you want to rename apks automatically? (y/n)" );
+        Log( "[c:06]Do you want to rename apk files automatically? (y/n)" );
         var choose = Utils.Chooser();
         if ( choose == 'y' )
           foreach ( var (apk, name, folder, newName) in from apk in namingErrorList
@@ -149,7 +170,6 @@ namespace Apker
       }
 
       Log( "\n[c:02]Done" );
-      Utils.WaitForPress();
     }
   }
 }

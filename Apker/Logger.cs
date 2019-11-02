@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -22,25 +21,11 @@ namespace Apker
     public delegate void LoggerHandler(string message);
 
     private static StreamWriter _sw;
-    private static event LoggerHandler _log;
-
-    public static event LoggerHandler LogHandlers
-    {
-      add
-      {
-        _log += value;
-        Debug.WriteLine( $"Log handler {value.Method.Name} added" );
-      }
-      remove
-      {
-        _log -= value;
-        Debug.WriteLine( $"Log handler {value.Method.Name} deleted" );
-      }
-    }
+    public static event LoggerHandler LogEvent;
 
     public static void Log(string message)
     {
-      _log?.Invoke( message );
+      LogEvent?.Invoke( message );
     }
 
     public static void LogInConsole(string message)
@@ -58,15 +43,13 @@ namespace Apker
       }
 
       /*
-       * Ehh...
-       *
-       *
        * Coloring usage:
        * "[c:01]Hi, blue! [c:0c]Hi, red!"
        *
        * Supported all colors from Windows Console
        *
        */
+
       var pairs = new Dictionary<int, KeyValuePair<string, ConsoleColor>>();
 
       // Colors parser
@@ -163,7 +146,7 @@ namespace Apker
 
     private static string RemoveColorCodes(string message)
     {
-      var pattern = @"(\[c:)[0-9][0-9a-f]\]";
+      const string pattern = @"(\[c:)[0-9][0-9a-f]\]";
       var clean = Regex.Replace( message, pattern, "" );
       return clean;
     }

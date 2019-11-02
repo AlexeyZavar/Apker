@@ -65,10 +65,10 @@ namespace Apker
       return t;
     }
 
-    public static void CopyDirectory(string sourceDirectory, string targetDirectory)
+    public static void DuplicateDirectory(string source, string target)
     {
-      var diSource = new DirectoryInfo( sourceDirectory );
-      var diTarget = new DirectoryInfo( targetDirectory );
+      var diSource = new DirectoryInfo( source );
+      var diTarget = new DirectoryInfo( target );
 
       CopyAll( diSource, diTarget );
     }

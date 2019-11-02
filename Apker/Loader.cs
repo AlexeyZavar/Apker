@@ -27,8 +27,8 @@ namespace Apker
     {
       Logo();
 
-      LogHandlers += LogInConsole;
-      LogHandlers += LogInFile;
+      LogEvent += LogInConsole;
+      LogEvent += LogInFile;
 
       if ( !File.Exists( "apker.config" ) )
         Config.LoadDefaults();
