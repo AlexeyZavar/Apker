@@ -39,7 +39,7 @@ namespace Apker
       ins.WorkingDir = "data/";
     }
 
-    public static void SaveToFile()
+    private static void SaveToFile()
     {
       var formatter = new BinaryFormatter();
       using var fs = new FileStream( "config.dat", FileMode.OpenOrCreate );
