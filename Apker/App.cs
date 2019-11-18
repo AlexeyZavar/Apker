@@ -16,11 +16,11 @@ namespace Apker
       ObbUrl = obbUrl;
     }
 
-    public static string Package { private set; get; }
-    public static string Name { private set; get; }
-    public static string Version { private set; get; }
-    public static string Size { private set; get; }
-    public static string ApkUrl { private set; get; }
-    public static string ObbUrl { private set; get; }
+    public string Package { get; }
+    public string Name { get; }
+    public string Version { get; }
+    public string Size { get; }
+    public string ApkUrl { get; }
+    public string ObbUrl { get; }
   }
 }

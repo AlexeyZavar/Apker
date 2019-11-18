@@ -58,9 +58,9 @@ namespace Apker
       Log( "1. [c:09]Check all apk files for naming & integrity" );
       Log( "2. [c:0b]Make [c:0a]installer" );
       Log( "3. [c:0b]Make [c:0c]uninstaller" );
-      Log("4. [c:0e]Settings");
-      Log("g. [c:0e]Google Play fetcher");
-      Log( "e. [c:0c]Exit" );
+      Log( "4. [c:0e]Settings" );
+      Log( "g. [c:0a]Google Play [c:0b]fetcher" );
+      Log( "[c:08]\ne. [c:0c]Exit" );
       var choose = Utils.Chooser();
       Utils.ClearWorkspace();
       Console.Clear();
@@ -79,7 +79,7 @@ namespace Apker
           _cfg.Menu();
           goto exit;
         case 'g':
-          MarketApi.Menu();
+          Market.Menu();
           goto exit;
         case 'e':
           _exit = true;

@@ -7,6 +7,7 @@
 using System;
 using System.IO;
 using System.Threading;
+using AngleSharp;
 using static Apker.Logger;
 
 #endregion
@@ -43,6 +44,11 @@ namespace Apker
 
       if ( Environment.OSVersion.Platform.Equals( PlatformID.Unix ) )
         UnixPermissions();
+
+      var config = Configuration.Default
+                                .WithDefaultLoader();
+
+      Market.Context = BrowsingContext.New( config );
 
       Utils.Wait();
     }
