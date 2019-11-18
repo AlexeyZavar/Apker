@@ -36,7 +36,7 @@ namespace Apker
         return;
       }
 
-      if ( !ColorMode )
+      if ( !GetInstance().ColorMode )
       {
         Console.WriteLine( RemoveColorCodes( message ) );
         return;
@@ -139,7 +139,7 @@ namespace Apker
     public static void LogInFile(string message)
     {
       if ( _sw == null )
-        _sw = new StreamWriter( LogPath, true, Encoding.Default );
+        _sw = new StreamWriter( GetInstance().LogPath, true, Encoding.Default );
       _sw?.WriteLine( RemoveColorCodes( message ) );
       _sw.Flush();
     }

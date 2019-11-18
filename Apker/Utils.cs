@@ -29,7 +29,7 @@ namespace Apker
 
     public static IEnumerable<string> FindFiles(string ext)
     {
-      return (from d in Directory.GetDirectories( Config.WorkingDir )
+      return (from d in Directory.GetDirectories( Config.GetInstance().WorkingDir )
               from f in Directory.GetFiles( d, $"*.{ext}" )
               select f).ToList();
     }
@@ -134,7 +134,7 @@ namespace Apker
       foreach ( var dir in from dir in dirs
                            where Directory.Exists( dir )
                            select dir )
-        Directory.Delete( Config.WorkingDir + dir, true );
+        Directory.Delete( Config.GetInstance().WorkingDir + dir, true );
       foreach ( var file in from file in files
                             where File.Exists( file )
                             select file )

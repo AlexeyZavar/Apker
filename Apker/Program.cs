@@ -19,9 +19,13 @@ namespace Apker
   {
     private static bool _exit;
 
+    private static Config _cfg;
+
     private static void Main(string[] args)
     {
       Loader.Load();
+
+      _cfg = Config.GetInstance();
 
       if ( args.Length != 0 )
       {
@@ -50,7 +54,7 @@ namespace Apker
     private static void Menu()
     {
       Console.Clear();
-      Log( "Main menu:" );
+      Log( "[c:03]Main menu[c:08]:" );
       Log( "1. [c:09]Check all apk files for naming & integrity" );
       Log( "2. [c:0b]Make [c:0a]installer" );
       Log( "3. [c:0b]Make [c:0c]uninstaller" );
@@ -71,8 +75,8 @@ namespace Apker
           MakeUninstaller();
           break;
         case '4':
-          Config.Menu();
-          break;
+          _cfg.Menu();
+          goto exit;
         case 'e':
           _exit = true;
           break;
@@ -81,13 +85,14 @@ namespace Apker
       }
 
       Utils.WaitForPress();
+      exit: ;
     }
 
     private static void MakeUninstaller()
     {
       var apkFiles = Utils.FindFiles( "apk" );
-      var uninstallerDir = Config.WorkingDir + "Uninstaller";
-      Utils.DuplicateDirectory( Config.WorkingDir + "UninstallerSrc", uninstallerDir );
+      var uninstallerDir = _cfg.WorkingDir + "Uninstaller";
+      Utils.DuplicateDirectory( _cfg.WorkingDir + "UninstallerSrc", uninstallerDir );
       var source = File.ReadAllLines( uninstallerDir + "/install.sh" ).ToList();
       foreach ( var apk in apkFiles )
       {
@@ -107,15 +112,15 @@ namespace Apker
     private static void MakeInstaller()
     {
       var apkFiles = Utils.FindFiles( "apk" );
-      var installerDir = Config.WorkingDir + "Installer";
+      var installerDir = _cfg.WorkingDir + "Installer";
       if ( Directory.Exists( installerDir ) )
         Directory.Delete( installerDir, true );
-      Utils.DuplicateDirectory( Config.WorkingDir + "InstallerSrc", installerDir );
+      Utils.DuplicateDirectory( _cfg.WorkingDir + "InstallerSrc", installerDir );
       foreach ( var apk in apkFiles )
       {
         var name = Path.GetFileName( apk );
         Log( $"[c:03]Copying {name}..." );
-        File.Copy( apk, Config.WorkingDir + "Installer/apks/" + name );
+        File.Copy( apk, _cfg.WorkingDir + "Installer/apks/" + name );
       }
 
       Log( "\n[c:0e]Creating archive, please wait..." );

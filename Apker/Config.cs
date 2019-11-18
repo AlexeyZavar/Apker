@@ -6,6 +6,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using static Apker.Logger;
 
 #endregion
@@ -15,37 +16,53 @@ namespace Apker
   [Serializable]
   public class Config
   {
-    public static string LogPath { get; private set; }
-    public static bool ColorMode { get; private set; }
-    public static string WorkingDir { get; private set; }
+    private static Config _instance;
+    public string LogPath { get; private set; }
+    public bool ColorMode { get; private set; }
+    public string WorkingDir { get; private set; }
+
+    public static Config GetInstance()
+    {
+      return _instance ??= new Config();
+    }
+
+    private static void SetInstance(Config cfg)
+    {
+      _instance = cfg;
+    }
 
     public static void LoadDefaults()
     {
-      LogPath = "log.txt";
-      ColorMode = true;
-      WorkingDir = "data/";
+      var ins = GetInstance();
+      ins.LogPath = "log.txt";
+      ins.ColorMode = true;
+      ins.WorkingDir = "data/";
+    }
+
+    public static void SaveToFile()
+    {
+      var formatter = new BinaryFormatter();
+      using var fs = new FileStream( "config.dat", FileMode.OpenOrCreate );
+      formatter.Serialize( fs, GetInstance() );
     }
 
     public static void LoadFromFile()
     {
-      SerializeStatic.Load( typeof(Config), "apker.config" );
+      var formatter = new BinaryFormatter();
+      using var fs = new FileStream( "config.dat", FileMode.OpenOrCreate );
+      var cfg = (Config) formatter.Deserialize( fs );
+      SetInstance( cfg );
     }
 
-    private static void SaveToFile()
-    {
-      SerializeStatic.Save( typeof(Config), "apker.config" );
-    }
-
-
-    public static void Menu()
+    public void Menu()
     {
       again:
       Console.Clear();
-      Log( "Current settings:" );
-      Log( $"1. Path to log: [c:09]{LogPath}" );
-      Log( $"2. Color mode: [c:09]{ColorMode}" );
-      Log( $"3. Path to working dir: [c:09]{WorkingDir}" );
-      Log( "\nr. Save & return to main menu" );
+      Log( "[c:03]Current settings[c:08]:" );
+      Log( $"1. [c:0d]Path to log[c:08]: [c:09]{LogPath}" );
+      Log( $"2. [c:0d]Color mode[c:08]: [c:09]{ColorMode}" );
+      Log( $"3. [c:0d]Path to working dir[c:08]: [c:09]{WorkingDir}" );
+      Log( "\nr. [c:0a]Save & return to main menu" );
       var choose = Utils.Chooser();
       switch ( choose )
       {
@@ -70,8 +87,7 @@ namespace Apker
 
           break;
         case '2':
-          Console.Write( "Color mode (y/n): " );
-          var mode = Utils.Chooser();
+          var mode = Utils.Chooser( "Color mode (y/n): " );
           switch ( mode )
           {
             case 'y':

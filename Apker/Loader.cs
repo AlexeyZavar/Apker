@@ -30,12 +30,14 @@ namespace Apker
       LogEvent += LogInConsole;
       LogEvent += LogInFile;
 
-      if ( !File.Exists( "apker.config" ) )
+      if ( !File.Exists( "config.dat" ) )
         Config.LoadDefaults();
       else
         Config.LoadFromFile();
 
-      Directory.CreateDirectory( Config.WorkingDir );
+      var cfg = Config.GetInstance();
+
+      Directory.CreateDirectory( cfg.WorkingDir );
 
       Utils.ClearWorkspace();
 
