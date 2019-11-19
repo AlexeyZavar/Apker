@@ -9,9 +9,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using System.Xml.XPath;
 using AngleSharp;
 using AngleSharp.Html.Dom;
 using static Apker.Logger;
@@ -186,6 +191,20 @@ namespace Apker
         DownloadObb( app );
     }
 
+    private static string UnshortenUrl(string url)
+    {
+      var wc = new WebClient();
+      var unshortenJson = wc.DownloadString( $"https://linkunshorten.com/api/link?url={url}" );
+      wc.Dispose();
+
+      var jsonReader =
+        JsonReaderWriterFactory.CreateJsonReader( Encoding.UTF8.GetBytes( unshortenJson ),
+                                                  new XmlDictionaryReaderQuotas() );
+
+      var root = XElement.Load( jsonReader );
+      return root.XPathSelectElement( "//redirectUrl" ).Value;
+    }
+
     private static void DownloadApk(App app)
     {
       var apkUrl = GetDownloadUrl( app.ApkUrl );
@@ -243,7 +262,7 @@ namespace Apker
 
       while ( loader == null )
       {
-        Thread.Sleep(4500);
+        Thread.Sleep( 4500 );
         result = Context.OpenAsync( url ).Result;
         loader = (IHtmlAnchorElement) result.Body.QuerySelector(
           "#download-result > div.has-text-centered > div > table > tbody > tr > td:nth-child(1) > p > a" );
@@ -253,13 +272,16 @@ namespace Apker
       var apkUrl = ((IHtmlAnchorElement) result.Body.QuerySelector(
                        "#download-result > div.has-text-centered > div > table > tbody > tr > td:nth-child(1) > p > a" )
                    ).Href;
-      return apkUrl;
+      return UnshortenUrl( apkUrl );
     }
 
     private static string ApkNameBuilder(string name, string version)
     {
-      return name.ToUpper().Replace( "-", "" ).Replace( "&AMP;", "." ).Replace( " ", "." ).Replace( "'", "" ) + "." +
-             version.Replace( "_", "." );
+      name = name.ToUpper().Replace( "-", "" ).Replace( "&AMP;", "." ).Replace( " ", "." ).Replace( "'", "" );
+      if ( name.Length > 24 )
+        return name.Substring( 0, 24 ) + "." +
+               version.Replace( "_", "." );
+      return name + "." + version.Replace( "_", "." );
     }
   }
 }

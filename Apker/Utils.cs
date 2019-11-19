@@ -174,7 +174,7 @@ namespace Apker
       {
         StartInfo = new ProcessStartInfo
         {
-          Arguments = $"{url} {path} 6",
+          Arguments = $"\"{url}\" \"{path}\" 6",
           UseShellExecute = false,
           RedirectStandardOutput = true,
           CreateNoWindow = true
