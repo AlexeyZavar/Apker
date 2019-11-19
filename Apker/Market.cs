@@ -26,7 +26,7 @@ namespace Apker
     public static IBrowsingContext Context { get; set; }
     public static string RepoDir { get; set; }
 
-    public static async Task<App> GetInformation(string packageName)
+    private static async Task<App> GetInformation(string packageName)
     {
       var document = await Context.OpenAsync( $"https://apkcombo.com/en-en/{packageName}" );
 
@@ -72,6 +72,7 @@ namespace Apker
       Log( "1. [c:0a]Download & add app" );
       Log( "2. [c:0c]Remove app" );
       Log( "3. [c:09]Update all apps" );
+      Log( "4. [c:0b]List all apps" );
       Log( "[c:08]\nr. [c:04]Return" );
       SaveRepo();
       var choose = Utils.Chooser();
@@ -86,6 +87,9 @@ namespace Apker
         case '3':
           Update();
           break;
+        case '4':
+          ListApps();
+          break;
         case 'r':
           goto exit;
       }
@@ -94,46 +98,57 @@ namespace Apker
       exit: ;
     }
 
+    private static void ListApps()
+    {
+      Console.Clear();
+      Log( "[c:03]Apps list:" );
+      foreach ( var app in Repo ) Log( $"[c:0e]{app.Name}: [c:09]{app.Version}, {app.Size}" );
+      Utils.WaitForPress();
+    }
+
     private static void Update()
     {
       Console.Clear();
       var tempRepo = Repo;
-      foreach ( var app in tempRepo)
+      foreach ( var app in tempRepo )
       {
         Log( $"[c:0b]Checking [c:03]{app.Name}[c:0b] for updates" );
         var app2 = GetInformation( app.Package ).Result;
-        if ( app2.NumVersion == app.NumVersion)
+        if ( app2.NumVersion == app.NumVersion )
         {
-          Log($"[c:03]{app.Name}[c:0b] is up-to-date");
+          Log( $"[c:03]{app.Name}[c:0b] is up-to-date" );
           continue;
         }
-        Log($"[c:03]{app.Name}[c:0b]: {app.Version} != {app2.Version}");
+
+        Log( $"[c:03]{app.Name}[c:0b]: {app.Version} != {app2.Version}" );
         RemoveApp( app );
         DownloadApp( app );
-        Log($"[c:0b]{app.Name}[c:0b] now is up-to-date\n");
+        Log( $"[c:0b]{app.Name}[c:0b] now is up-to-date\n" );
       }
+
       Utils.WaitForPress();
     }
 
     private static void Remove()
     {
-      var package = Utils.GetInput("Package name: ");
-      var app = FindByPackageName(package);
-      if (FindByPackageName(package) == null)
+      var package = Utils.GetInput( "Package name: " );
+      var app = FindByPackageName( package );
+      if ( FindByPackageName( package ) == null )
       {
-        Log("[c:0c]This app doesn't exists in the repository!");
+        Log( "[c:0c]This app doesn't exists in the repository!" );
         Utils.Wait();
         return;
       }
-      RemoveApp(app);
-      Log($"[c:0a]{app.Name} removed");
+
+      RemoveApp( app );
+      Log( $"[c:0a]{app.Name} removed" );
       Utils.WaitForPress();
     }
 
     private static void RemoveApp(App app)
     {
-      File.Delete(RepoDir + ApkNameBuilder(app.Name, app.Version) + ".apk");
-      if (app.ObbUrl != null)
+      File.Delete( RepoDir + ApkNameBuilder( app.Name, app.Version ) + ".apk" );
+      if ( app.ObbUrl != null )
         Directory.Delete( RepoDir + app.Package, true );
       Repo.Remove( app );
     }
@@ -146,7 +161,7 @@ namespace Apker
     private static void Download()
     {
       var package = Utils.GetInput( "Package name: " );
-      if (FindByPackageName(package) != null )
+      if ( FindByPackageName( package ) != null )
       {
         Log( "[c:0c]This app already exists in the repository!" );
         Utils.Wait();
@@ -165,10 +180,10 @@ namespace Apker
 
     private static void DownloadApp(App app)
     {
-      DownloadApk(app);
+      DownloadApk( app );
 
-      if (app.ObbUrl != null)
-        DownloadObb(app);
+      if ( app.ObbUrl != null )
+        DownloadObb( app );
     }
 
     private static void DownloadApk(App app)
