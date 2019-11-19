@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using ICSharpCode.SharpZipLib.Zip;
@@ -29,9 +30,7 @@ namespace Apker
 
     public static IEnumerable<string> FindFiles(string ext)
     {
-      return (from d in Directory.GetDirectories( Config.GetInstance().WorkingDir )
-              from f in Directory.GetFiles( d, $"*.{ext}" )
-              select f).ToList();
+      return Directory.GetFiles( Config.GetInstance().WorkingDir, $"*.{ext}", SearchOption.AllDirectories ).ToList();
     }
 
     public static void Wait()
@@ -132,7 +131,7 @@ namespace Apker
       var dirs = new List<string> { "Installer", "Uninstaller" };
       var files = new List<string> { "Installer.zip", "Uninstaller.zip" };
       foreach ( var dir in from dir in dirs
-                           where Directory.Exists( dir )
+                           where Directory.Exists( Config.GetInstance().WorkingDir + dir )
                            select dir )
         Directory.Delete( Config.GetInstance().WorkingDir + dir, true );
       foreach ( var file in from file in files
@@ -156,6 +155,44 @@ namespace Apker
         }
       };
       process.Start();
+    }
+
+    public static void Download(string url, string path)
+    {
+      if ( Config.GetInstance().MultithreadDownload )
+        MultithreadDownload( url, path );
+      else
+        SingleDownload( url, path );
+    }
+
+    private static void MultithreadDownload(string url, string path)
+    {
+      var system = Environment.OSVersion.Platform;
+      var proc = new Process
+      {
+        StartInfo = new ProcessStartInfo
+        {
+          Arguments = $"\"{url}\" \"{path}\" 6",
+          UseShellExecute = false,
+          RedirectStandardOutput = true,
+          CreateNoWindow = true
+        }
+      };
+      proc.StartInfo.FileName = system switch
+      {
+        PlatformID.Win32NT => $"{Config.GetInstance().WorkingDir}Downloader/downloader.exe",
+        PlatformID.Unix => $"python3 {Config.GetInstance().WorkingDir}Downloader/source.py",
+        PlatformID.MacOSX => $"python3 {Config.GetInstance().WorkingDir}Downloader/source.py",
+        _ => $"{Config.GetInstance().WorkingDir}Downloader/downloader.exe",
+      };
+      proc.Start();
+      Wait();
+    }
+
+    private static void SingleDownload(string url, string path)
+    {
+      using var client = new WebClient();
+      client.DownloadFile( url, path );
     }
   }
 }

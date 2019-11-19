@@ -20,6 +20,7 @@ namespace Apker
     public string LogPath { get; private set; }
     public bool ColorMode { get; private set; }
     public string WorkingDir { get; private set; }
+    public bool MultithreadDownload { get; private set; }
 
     public static Config GetInstance()
     {
@@ -34,9 +35,19 @@ namespace Apker
     public static void LoadDefaults()
     {
       var ins = GetInstance();
+
       ins.LogPath = "log.txt";
       ins.ColorMode = true;
       ins.WorkingDir = "data/";
+      ins.MultithreadDownload = false;
+    }
+
+    public static void UpgradeConfig()
+    {
+      var ins = GetInstance();
+
+      ins.LogPath ??= "log.txt";
+      ins.WorkingDir ??= "data/";
     }
 
     private static void SaveToFile()
@@ -62,6 +73,7 @@ namespace Apker
       Log( $"1. [c:0d]Path to log[c:08]: [c:09]{LogPath}" );
       Log( $"2. [c:0d]Color mode[c:08]: [c:09]{ColorMode}" );
       Log( $"3. [c:0d]Path to working dir[c:08]: [c:09]{WorkingDir}" );
+      Log( $"4. [c:0d]Multi-thread downloader[c:08]: [c:09]{MultithreadDownload}" );
       Log( "\nr. [c:0a]Save & return to main menu" );
       var choose = Utils.Chooser();
       switch ( choose )
@@ -87,8 +99,8 @@ namespace Apker
 
           break;
         case '2':
-          var mode = Utils.Chooser( "Color mode (y/n): " );
-          switch ( mode )
+          var colorMode = Utils.Chooser( "Color mode (y/n): " );
+          switch ( colorMode )
           {
             case 'y':
               ColorMode = true;
@@ -99,7 +111,7 @@ namespace Apker
             default:
               Log( "[c:0c]Invalid mode" );
               Utils.Wait();
-              goto again;
+              break;
           }
 
           break;
@@ -113,6 +125,24 @@ namespace Apker
           {
             Log( "[c:0c]Invalid path" );
             Utils.Wait();
+          }
+
+          break;
+
+        case '4':
+          var downloaderMode = Utils.Chooser( "Multi-thread mode (y/n): " );
+          switch ( downloaderMode )
+          {
+            case 'y':
+              MultithreadDownload = true;
+              break;
+            case 'n':
+              MultithreadDownload = false;
+              break;
+            default:
+              Log( "[c:0c]Invalid mode" );
+              Utils.Wait();
+              break;
           }
 
           break;
