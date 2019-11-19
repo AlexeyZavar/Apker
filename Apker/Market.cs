@@ -243,10 +243,10 @@ namespace Apker
 
       while ( loader == null )
       {
+        Thread.Sleep(4500);
         result = Context.OpenAsync( url ).Result;
         loader = (IHtmlAnchorElement) result.Body.QuerySelector(
           "#download-result > div.has-text-centered > div > table > tbody > tr > td:nth-child(1) > p > a" );
-        Thread.Sleep( 6000 );
         result.Dispose();
       }
 

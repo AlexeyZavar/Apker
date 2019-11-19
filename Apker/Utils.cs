@@ -183,13 +183,12 @@ namespace Apker
       proc.StartInfo.FileName = system switch
       {
         PlatformID.Win32NT => $"{Config.GetInstance().WorkingDir}Downloader/downloader.exe",
-        PlatformID.Unix => "python3",
-        PlatformID.MacOSX => "python3",
+        PlatformID.Unix => $"python3 {Config.GetInstance().WorkingDir}Downloader/source.py",
+        PlatformID.MacOSX => $"python3 {Config.GetInstance().WorkingDir}Downloader/source.py",
         _ => $"{Config.GetInstance().WorkingDir}Downloader/downloader.exe",
       };
       proc.Start();
-      proc.WaitForExit();
-      proc.Dispose();
+      Wait();
     }
 
     private static void SingleDownload(string url, string path)
