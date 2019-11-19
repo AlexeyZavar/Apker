@@ -62,7 +62,6 @@ namespace Apker
       Log( "g. [c:0a]Google Play [c:0b]fetcher" );
       Log( "[c:08]\ne. [c:0c]Exit" );
       var choose = Utils.Chooser();
-      Utils.ClearWorkspace();
       Console.Clear();
       switch ( choose )
       {
@@ -115,16 +114,29 @@ namespace Apker
 
     private static void MakeInstaller()
     {
+      Utils.ClearWorkspace();
       var apkFiles = Utils.FindFiles( "apk" );
       var installerDir = _cfg.WorkingDir + "Installer";
       if ( Directory.Exists( installerDir ) )
         Directory.Delete( installerDir, true );
       Utils.DuplicateDirectory( _cfg.WorkingDir + "InstallerSrc", installerDir );
+      Directory.CreateDirectory( installerDir + "/apks" );
       foreach ( var apk in apkFiles )
       {
         var name = Path.GetFileName( apk );
         Log( $"[c:03]Copying {name}..." );
         File.Copy( apk, _cfg.WorkingDir + "Installer/apks/" + name );
+      }
+
+      var obbFiles = Utils.FindFiles( "obb" );
+
+      foreach (var obb in obbFiles)
+      {
+        var name = Path.GetFileName(obb);
+        var dirName = Path.GetFileName(Path.GetDirectoryName(obb));
+        Log($"[c:03]Copying {name}...");
+        Directory.CreateDirectory(_cfg.WorkingDir + "Installer/obbs/" + dirName);
+        File.Copy(obb, _cfg.WorkingDir + "Installer/obbs/" + dirName + "/" + name);
       }
 
       Log( "\n[c:0e]Creating archive, please wait..." );
