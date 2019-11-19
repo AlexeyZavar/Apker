@@ -83,9 +83,33 @@ namespace Apker
         case '2':
           Remove();
           break;
+        case '3':
+          Update();
+          break;
       }
 
       goto again;
+    }
+
+    private static void Update()
+    {
+      Console.Clear();
+      var tempRepo = Repo;
+      foreach ( var app in tempRepo)
+      {
+        Log( $"[c:0b]Checking [c:03]{app.Name}[c:0b] for updates" );
+        var app2 = GetInformation( app.Package ).Result;
+        if ( app2.NumVersion == app.NumVersion)
+        {
+          Log($"[c:03]{app.Name}[c:0b] is up-to-date");
+          continue;
+        }
+        Log($"[c:03]{app.Name}[c:0b]: {app.Version} != {app2.Version}");
+        RemoveApp( app );
+        DownloadApp( app );
+        Log($"[c:0b]{app.Name}[c:0b] now is up-to-date\n");
+      }
+      Utils.WaitForPress();
     }
 
     private static void Remove()
@@ -128,15 +152,20 @@ namespace Apker
 
       var app = GetInformation( package ).Result;
 
-      DownloadApk( app );
-
-      if ( app.ObbUrl != null )
-        DownloadObb( app );
+      DownloadApp( app );
 
       Repo.Add( app );
 
       Log( $"[c:0a]{app.Name} downloaded" );
       Utils.WaitForPress();
+    }
+
+    private static void DownloadApp(App app)
+    {
+      DownloadApk(app);
+
+      if (app.ObbUrl != null)
+        DownloadObb(app);
     }
 
     private static void DownloadApk(App app)
