@@ -68,7 +68,7 @@ namespace Apker
     {
       again:
       Console.Clear();
-      Log( "[c:03]Google play fetcher[c:08]:" );
+      Log( "[c:03]Google Play fetcher[c:08]:" );
       Log( "1. [c:0a]Download & add app" );
       Log( "2. [c:0c]Remove app" );
       Log( "3. [c:09]Update all apps" );
