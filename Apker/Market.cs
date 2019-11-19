@@ -10,6 +10,7 @@ using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using AngleSharp;
 using AngleSharp.Html.Dom;
@@ -21,8 +22,9 @@ namespace Apker
 {
   public static class Market
   {
-    private static List<App> repo { get; set; }
+    private static List<App> Repo { get; set; }
     public static IBrowsingContext Context { get; set; }
+    public static string RepoDir { get; set; }
 
     public static async Task<App> GetInformation(string packageName)
     {
@@ -56,15 +58,14 @@ namespace Apker
 
       var regex = new Regex( "\\([0-9]*\\)" );
 
-      //version = regex.Match( version ).ToString().Replace( "(", "" ).Replace( ")", "" );
+      var numVersion = regex.Match( version ).ToString().Replace( "(", "" ).Replace( ")", "" );
       version = regex.Replace( version, "" ).Replace( " ", "" );
 
-      return new App( packageName, name, version, size, apkUrl, obbUrl );
+      return new App( packageName, name, version, numVersion, size, apkUrl, obbUrl );
     }
 
     public static void Menu()
     {
-      repo = new List<App>();
       again:
       Console.Clear();
       Log( "[c:03]Google play fetcher[c:08]:" );
@@ -72,70 +73,108 @@ namespace Apker
       Log( "2. [c:0c]Remove app" );
       Log( "3. [c:09]Update all apps" );
       Log( "[c:08]\nr. [c:04]Return" );
+      SaveRepo();
       var choose = Utils.Chooser();
       switch ( choose )
       {
         case '1':
-          var package = Utils.GetInput( "Package name: " );
-          if ( repo.Find( x => x.Package.Contains( package ) ) != null )
-          {
-            Log( "[c:0c]This app already exists in the repository!" );
-            Utils.Wait();
-            goto again;
-          }
-
-          var app = GetInformation( package ).Result;
-
-          using ( var client = new WebClient() )
-          {
-            var apk = Context.OpenAsync( app.ApkUrl );
-            var apkUrl = ((IHtmlAnchorElement) apk.Result.Body.QuerySelector(
-                             "#download-result > div.has-text-centered > div > table > tbody > tr > td:nth-child(1) > p > a" )
-                         ).Href;
-            client.DownloadFile(
-              apkUrl, Config.GetInstance().WorkingDir + "Repo/" + NameBuilder( app.Name, app.Version ) + ".apk" );
-
-            if ( app.ObbUrl != null )
-            {
-              var obb = Context.OpenAsync( app.ObbUrl );
-              var obbElement = (IHtmlAnchorElement) obb.Result.Body.QuerySelector(
-                "#download-result > div.has-text-centered > div > table > tbody > tr > td:nth-child(1) > p > a" );
-              var obbUrl = obbElement.Href;
-              var obbName = obbElement.InnerHtml;
-              Directory.CreateDirectory(Config.GetInstance().WorkingDir + "Repo/" + package);
-              client.DownloadFile(
-                obbUrl,
-                Config.GetInstance().WorkingDir + "Repo/" + package + "/" + obbName +
-                ".obb" );
-            }
-          }
-
-          Log( "Downloaded" );
-          Utils.WaitForPress();
+          Download();
           break;
       }
 
       goto again;
     }
 
-    private static void SaveToFile()
+
+    private static void Download()
+    {
+      var package = Utils.GetInput( "Package name: " );
+      if ( Repo.Find( x => x.Package.Contains( package ) ) != null )
+      {
+        Log( "[c:0c]This app already exists in the repository!" );
+        Utils.Wait();
+        return;
+      }
+
+      var app = GetInformation( package ).Result;
+
+      var apkUrl = GetDownloadUrl( app.ApkUrl );
+
+      Utils.Download(
+        apkUrl, RepoDir + ApkNameBuilder( app.Name, app.Version ) + ".apk" );
+
+      if ( app.ObbUrl != null )
+      {
+        var obbUrl = GetDownloadUrl( app.ObbUrl );
+
+        Directory.CreateDirectory( RepoDir + app.Package );
+
+        Utils.Download(
+          obbUrl, RepoDir + app.Package + "/" + ObbNameBuilder( app.NumVersion, app.Package ) );
+      }
+
+      Repo.Add( app );
+
+      Log( "Downloaded" );
+      Utils.WaitForPress();
+    }
+
+    private static string ObbNameBuilder(string numVersion, string package)
+    {
+      return $"main.{numVersion}.{package}.obb";
+    }
+
+    private static void SaveRepo()
     {
       var formatter = new BinaryFormatter();
       using var fs = new FileStream( "repo.dat", FileMode.OpenOrCreate );
-      formatter.Serialize( fs, repo );
+      formatter.Serialize( fs, Repo );
     }
 
-    public static void LoadFromFile()
+    public static void LoadRepo()
     {
+      if ( !File.Exists( "repo.dat" ) )
+      {
+        Repo = new List<App>();
+        return;
+      }
+
       var formatter = new BinaryFormatter();
       using var fs = new FileStream( "repo.dat", FileMode.OpenOrCreate );
       var cfg = (List<App>) formatter.Deserialize( fs );
-      repo = cfg;
+      Repo = cfg;
     }
 
-    private static string NameBuilder(string name, string version)
+    private static string GetDownloadUrl(string url)
     {
-      return name.ToUpper().Replace( "-", "." ).Replace( " ", "." ) + "." + version;
+      Context.OpenAsync( url ).Result.Dispose();
+
+      Utils.Wait();
+
+      var result = Context.OpenAsync( url ).Result;
+
+      var loader = (IHtmlAnchorElement) result.Body.QuerySelector(
+        "#download-result > div.has-text-centered > div > table > tbody > tr > td:nth-child(1) > p > a" );
+
+      while ( loader == null )
+      {
+        result = Context.OpenAsync( url ).Result;
+        loader = (IHtmlAnchorElement) result.Body.QuerySelector(
+          "#download-result > div.has-text-centered > div > table > tbody > tr > td:nth-child(1) > p > a" );
+        Thread.Sleep( 6000 );
+        result.Dispose();
+      }
+
+      var apkUrl = ((IHtmlAnchorElement) result.Body.QuerySelector(
+                       "#download-result > div.has-text-centered > div > table > tbody > tr > td:nth-child(1) > p > a" )
+                   ).Href;
+      return apkUrl;
+    }
+
+    private static string ApkNameBuilder(string name, string version)
+    {
+      return name.ToUpper().Replace( "-", "" ).Replace( "&AMP;", "." ).Replace( " ", "." ).Replace( "'", "" ) + "." +
+             version.Replace( "_", "." );
     }
   }
 }

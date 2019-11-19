@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using ICSharpCode.SharpZipLib.Zip;
@@ -156,6 +157,45 @@ namespace Apker
         }
       };
       process.Start();
+    }
+
+    public static void Download(string url, string path)
+    {
+      if ( Config.GetInstance().MultithreadDownload )
+        MultithreadDownload( url, path );
+      else
+        SingleDownload( url, path );
+    }
+
+    private static void MultithreadDownload(string url, string path)
+    {
+      var system = Environment.OSVersion.Platform;
+      var proc = new Process
+      {
+        StartInfo = new ProcessStartInfo
+        {
+          Arguments = $"{url} {path} 6",
+          UseShellExecute = false,
+          RedirectStandardOutput = true,
+          CreateNoWindow = true
+        }
+      };
+      proc.StartInfo.FileName = system switch
+      {
+        PlatformID.Win32NT => $"{Config.GetInstance().WorkingDir}Downloader/downloader.exe",
+        PlatformID.Unix => "python3",
+        PlatformID.MacOSX => "python3",
+        _ => $"{Config.GetInstance().WorkingDir}Downloader/downloader.exe",
+      };
+      proc.Start();
+      proc.WaitForExit();
+      proc.Dispose();
+    }
+
+    private static void SingleDownload(string url, string path)
+    {
+      using var client = new WebClient();
+      client.DownloadFile( url, path );
     }
   }
 }

@@ -28,27 +28,32 @@ namespace Apker
     {
       Logo();
 
+      // Logger init
       LogEvent += LogInConsole;
       LogEvent += LogInFile;
 
+      // Config init
       if ( !File.Exists( "config.dat" ) )
         Config.LoadDefaults();
       else
         Config.LoadFromFile();
 
+      // Config init
       var cfg = Config.GetInstance();
-
       Directory.CreateDirectory( cfg.WorkingDir );
-
       Utils.ClearWorkspace();
-
       if ( Environment.OSVersion.Platform.Equals( PlatformID.Unix ) )
         UnixPermissions();
 
+      // Market init
       var config = Configuration.Default
-                                .WithDefaultLoader();
+                                .WithDefaultLoader()
+                                .WithJs()
+                                .WithCss();
 
       Market.Context = BrowsingContext.New( config );
+      Market.RepoDir = Config.GetInstance().WorkingDir + "Repo/";
+      Market.LoadRepo();
 
       Utils.Wait();
     }
