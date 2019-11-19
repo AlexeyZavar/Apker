@@ -86,9 +86,12 @@ namespace Apker
         case '3':
           Update();
           break;
+        case 'r':
+          goto exit;
       }
 
       goto again;
+      exit: ;
     }
 
     private static void Update()
