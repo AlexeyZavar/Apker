@@ -130,13 +130,13 @@ namespace Apker
 
       var obbFiles = Utils.FindFiles( "obb" );
 
-      foreach (var obb in obbFiles)
+      foreach ( var obb in obbFiles )
       {
-        var name = Path.GetFileName(obb);
-        var dirName = Path.GetFileName(Path.GetDirectoryName(obb));
-        Log($"[c:03]Copying {name}...");
-        Directory.CreateDirectory(_cfg.WorkingDir + "Installer/obbs/" + dirName);
-        File.Copy(obb, _cfg.WorkingDir + "Installer/obbs/" + dirName + "/" + name);
+        var name = Path.GetFileName( obb );
+        var dirName = Path.GetFileName( Path.GetDirectoryName( obb ) );
+        Log( $"[c:03]Copying {name}..." );
+        Directory.CreateDirectory( _cfg.WorkingDir + "Installer/obbs/" + dirName );
+        File.Copy( obb, _cfg.WorkingDir + "Installer/obbs/" + dirName + "/" + name );
       }
 
       Log( "\n[c:0e]Creating archive, please wait..." );

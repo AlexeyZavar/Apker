@@ -30,7 +30,7 @@ namespace Apker
 
     public static IEnumerable<string> FindFiles(string ext)
     {
-      return Directory.GetFiles(Config.GetInstance().WorkingDir, $"*.{ext}", SearchOption.AllDirectories ).ToList();
+      return Directory.GetFiles( Config.GetInstance().WorkingDir, $"*.{ext}", SearchOption.AllDirectories ).ToList();
     }
 
     public static void Wait()
@@ -131,7 +131,7 @@ namespace Apker
       var dirs = new List<string> { "Installer", "Uninstaller" };
       var files = new List<string> { "Installer.zip", "Uninstaller.zip" };
       foreach ( var dir in from dir in dirs
-                           where Directory.Exists(Config.GetInstance().WorkingDir + dir)
+                           where Directory.Exists( Config.GetInstance().WorkingDir + dir )
                            select dir )
         Directory.Delete( Config.GetInstance().WorkingDir + dir, true );
       foreach ( var file in from file in files
