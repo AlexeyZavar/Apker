@@ -100,11 +100,12 @@ namespace Apker
       }
       RemoveApp(app);
       Log($"[c:0a]{app.Name} removed");
+      Utils.WaitForPress();
     }
 
     private static void RemoveApp(App app)
     {
-      File.Delete(RepoDir + ApkNameBuilder(app.Name, app.Version));
+      File.Delete(RepoDir + ApkNameBuilder(app.Name, app.Version) + ".apk");
       if (app.ObbUrl != null)
         Directory.Delete( RepoDir + app.Package, true );
       Repo.Remove( app );
