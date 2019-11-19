@@ -80,16 +80,45 @@ namespace Apker
         case '1':
           Download();
           break;
+        case '2':
+          Remove();
+          break;
       }
 
       goto again;
     }
 
+    private static void Remove()
+    {
+      var package = Utils.GetInput("Package name: ");
+      var app = FindByPackageName(package);
+      if (FindByPackageName(package) == null)
+      {
+        Log("[c:0c]This app doesn't exists in the repository!");
+        Utils.Wait();
+        return;
+      }
+      RemoveApp(app);
+      Log($"[c:0a]{app.Name} removed");
+    }
+
+    private static void RemoveApp(App app)
+    {
+      File.Delete(RepoDir + ApkNameBuilder(app.Name, app.Version));
+      if (app.ObbUrl != null)
+        Directory.Delete( RepoDir + app.Package, true );
+      Repo.Remove( app );
+    }
+
+    private static App FindByPackageName(string package)
+    {
+      return Repo.Find( x => x.Package.Contains( package ) );
+    }
 
     private static void Download()
     {
       var package = Utils.GetInput( "Package name: " );
-      if ( Repo.Find( x => x.Package.Contains( package ) ) != null )
+      if (FindByPackageName(package) != null )
       {
         Log( "[c:0c]This app already exists in the repository!" );
         Utils.Wait();
@@ -98,25 +127,33 @@ namespace Apker
 
       var app = GetInformation( package ).Result;
 
+      DownloadApk( app );
+
+      if ( app.ObbUrl != null )
+        DownloadObb( app );
+
+      Repo.Add( app );
+
+      Log( $"[c:0a]{app.Name} downloaded" );
+      Utils.WaitForPress();
+    }
+
+    private static void DownloadApk(App app)
+    {
       var apkUrl = GetDownloadUrl( app.ApkUrl );
 
       Utils.Download(
         apkUrl, RepoDir + ApkNameBuilder( app.Name, app.Version ) + ".apk" );
+    }
 
-      if ( app.ObbUrl != null )
-      {
-        var obbUrl = GetDownloadUrl( app.ObbUrl );
+    private static void DownloadObb(App app)
+    {
+      var obbUrl = GetDownloadUrl( app.ObbUrl );
 
-        Directory.CreateDirectory( RepoDir + app.Package );
+      Directory.CreateDirectory( RepoDir + app.Package );
 
-        Utils.Download(
-          obbUrl, RepoDir + app.Package + "/" + ObbNameBuilder( app.NumVersion, app.Package ) );
-      }
-
-      Repo.Add( app );
-
-      Log( "Downloaded" );
-      Utils.WaitForPress();
+      Utils.Download(
+        obbUrl, RepoDir + app.Package + "/" + ObbNameBuilder( app.NumVersion, app.Package ) );
     }
 
     private static string ObbNameBuilder(string numVersion, string package)
