@@ -45,7 +45,7 @@ namespace Apker
 
     public static string RemoveNamingErrors(string str)
     {
-      return Regex.Replace( str, "[@!#$%^&*\";:?]", "" );
+      return Regex.Replace( str, "[@!#$%^&*\";:_?]", "" );
     }
 
     public static char Chooser(string text = "\nEnter option: ")

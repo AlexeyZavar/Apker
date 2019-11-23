@@ -23,6 +23,9 @@
     <None Update="aapt\aapt.mac">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="data\Data\placeholder">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="data\Downloader\downloader.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

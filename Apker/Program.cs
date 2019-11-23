@@ -25,8 +25,6 @@ namespace Apker
     {
       Loader.Load();
 
-      _cfg = Config.GetInstance();
-
       if ( args.Length != 0 )
       {
         switch ( args[0] )
@@ -54,6 +52,7 @@ namespace Apker
     private static void Menu()
     {
       Console.Clear();
+      _cfg = Config.GetInstance();
       Log( "[c:03]Main menu[c:08]:" );
       Log( "1. [c:09]Check all apk files for naming & integrity" );
       Log( "2. [c:0b]Make [c:0a]installer" );
@@ -138,6 +137,11 @@ namespace Apker
         Directory.CreateDirectory( _cfg.WorkingDir + "Installer/obbs/" + dirName );
         File.Copy( obb, _cfg.WorkingDir + "Installer/obbs/" + dirName + "/" + name );
       }
+
+      Log( "[c:03]Copying data folder..." );
+
+      Utils.DuplicateDirectory( _cfg.WorkingDir + "Data", _cfg.WorkingDir + "Installer/data" );
+      File.Delete( _cfg.WorkingDir + "Installer/data/placeholder" );
 
       Log( "\n[c:0e]Creating archive, please wait..." );
       Utils.CreateZip( installerDir, "Installer.zip" );
